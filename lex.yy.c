@@ -370,8 +370,8 @@ static void yynoreturn yy_fatal_error ( const char* msg  );
 	(yy_hold_char) = *yy_cp; \
 	*yy_cp = '\0'; \
 	(yy_c_buf_p) = yy_cp;
-#define YY_NUM_RULES 38
-#define YY_END_OF_BUFFER 39
+#define YY_NUM_RULES 39
+#define YY_END_OF_BUFFER 40
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
@@ -381,7 +381,7 @@ struct yy_trans_info
 	};
 static const flex_int16_t yy_accept[88] =
     {   0,
-        0,    0,    0,    0,    0,    0,   39,   38,   13,    1,
+        0,    0,    0,    0,    0,    0,   40,   38,   13,    1,
        14,   29,   30,   15,   38,   36,   36,   34,   33,   23,
        35,   35,   35,   35,   35,   35,   35,   35,   35,   35,
        31,   32,    5,    4,    3,   12,   10,    9,   11,   12,
@@ -499,10 +499,11 @@ static const flex_int16_t yy_chk[144] =
     } ;
 
 /* Table of booleans, true if rule could match eol. */
-static const flex_int32_t yy_rule_can_match_eol[39] =
+static const flex_int32_t yy_rule_can_match_eol[40] =
     {   0,
 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,     };
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+        };
 
 static yy_state_type yy_last_accepting_state;
 static char *yy_last_accepting_cpos;
@@ -525,29 +526,71 @@ char *yytext;
 #include <string.h>
 #include <ctype.h>
 
-//Definindo os tokens da linguagem LF
-typedef enum _TOKEN {
-eof = -1, OPR = 0, RESERVADAS = 1, ID = 2, LITERALINT = 3, LITERALFLOAT = 4, ERROR = 5, IF = 6, 
+// define uma tupla que é composta de um enum, sua chave, e a string contendo seu nome/tipo, o valor associado à chave
+typedef struct _enum_tuple 
+{
+    int    enum_key;
+    char  *enum_value;
+} enum_tuple;
+
+// retorna a string associada a uma chave dada por key no dicionário dado em table
+char* GetEnumName(enum_tuple* table, int key)
+{
+   while (table->enum_value != NULL)
+   {
+      if (table->enum_key == key)
+        return table->enum_value;
+      table++;
+   }
+   return NULL;
+}
+
+// representa os tokens da linguagem LF
+typedef enum _TOKEN 
+{
+eof = -1, OPR = 0, INVALID_INPUT = 1, ID = 2, LITERALINT = 3, LITERALFLOAT = 4, ERROR = 5, IF = 6, 
 ELSE = 7, WHILE = 8, VAR = 9, CONST = 10, RETURN = 11, FN = 12, ATRIB = 13,
 BOOL = 14, INT = 15, FLOAT = 16, TRU =17, FALS = 18, OPAR = 19, CPAR = 20, OBRAC = 21, 
 CBRAC = 22, SCOL = 23, COL = 24
 } TOKEN;
 
-char* UpperCase(char str[]){
-    char* copy = (char*)malloc(strlen(str));
-    for(int j = 0; j < strlen(str); j++){
-        copy[j] = str[j];
-    }
+// representa um dicionário de tokens
+enum_tuple dicionario_tokens[] = 
+{
+    { eof, "eof" },
+    { OPR, "OPR" },
+    { INVALID_INPUT,  "INVALID_INPUT"  },
+    { ID,  "ID"  },
+    { LITERALINT,"LITERALINT"},
+    {LITERALFLOAT, "LITERALFLOAT"}, 
+    {ERROR, "ERROR"}, 
+    {IF, "IF"}, 
+    {ELSE, "ELSE"}, 
+    {WHILE, "WHILE"},
+    {VAR, "VAR"},
+    {CONST, "CONST"},
+    {RETURN, "RETURN"},
+    {FN, "FN"},
+    {ATRIB, "ATRIB"},
+    {BOOL, "BOOL"},
+    {INT, "INT"}, 
+    {FLOAT, "FLOAT"},
+    {TRU, "TRU"},
+    {FALS, "FALS"},
+    {OPAR, "OPAR"},
+    {CPAR, "CPAR"},
+    {OBRAC, "OBRAC"},
+    {CBRAC, "CBRAC"},
+    {SCOL, "SCOL"},
+    {COL, "COL"},
+};
 
-    int i = 0;
-
-    while(copy[i]){
-        copy[i] = toupper(copy[i]);
-        i++;
-    }
-
-    return copy;
+// retorna a string contendo o nome ou tipo associada ao token dado por token_key
+char* GetTokenName(TOKEN token_key)
+{
+    return GetEnumName(dicionario_tokens, token_key);
 }
+
 
 /*
 %option yylineno é uma variável nativa do flex que aramzena em que linha da entrada está o analisador.
@@ -564,9 +607,9 @@ estado inicial do analisador
 */
 int line, col = 1, nivel_comment = 0, colComment;
 
-#line 568 "lex.yy.c"
+#line 611 "lex.yy.c"
 
-#line 570 "lex.yy.c"
+#line 613 "lex.yy.c"
 
 #define INITIAL 0
 #define COMMENT_LINE 1
@@ -785,10 +828,10 @@ YY_DECL
 		}
 
 	{
-#line 59 "analisador_lexico.l"
+#line 101 "analisador_lexico.l"
 
 
-#line 792 "lex.yy.c"
+#line 835 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -856,211 +899,216 @@ do_action:	/* This label is used only to access EOF actions. */
 			goto yy_find_action;
 
 case YY_STATE_EOF(INITIAL):
-#line 61 "analisador_lexico.l"
+#line 103 "analisador_lexico.l"
 {return eof;}
 	YY_BREAK
 case 1:
 /* rule 1 can match eol */
 YY_RULE_SETUP
-#line 62 "analisador_lexico.l"
+#line 104 "analisador_lexico.l"
 {col = 1;}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 63 "analisador_lexico.l"
+#line 105 "analisador_lexico.l"
 {col += 2; BEGIN(COMMENT_LINE);}
 	YY_BREAK
 case 3:
 /* rule 3 can match eol */
 YY_RULE_SETUP
-#line 65 "analisador_lexico.l"
+#line 107 "analisador_lexico.l"
 {col=1; BEGIN(INITIAL);}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 66 "analisador_lexico.l"
+#line 108 "analisador_lexico.l"
 {col += 4;}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 67 "analisador_lexico.l"
+#line 109 "analisador_lexico.l"
 {col++;}
 	YY_BREAK
 case YY_STATE_EOF(COMMENT_LINE):
-#line 68 "analisador_lexico.l"
+#line 110 "analisador_lexico.l"
 {return eof;}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 70 "analisador_lexico.l"
+#line 112 "analisador_lexico.l"
 {line = yylineno; colComment = col; col += 2; nivel_comment++; BEGIN(COMMENT);}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 72 "analisador_lexico.l"
+#line 114 "analisador_lexico.l"
 {line = yylineno; col += 2; nivel_comment++;}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 73 "analisador_lexico.l"
+#line 115 "analisador_lexico.l"
 {col += 2; nivel_comment--; if(nivel_comment == 0) BEGIN(INITIAL);}
 	YY_BREAK
 case 9:
 /* rule 9 can match eol */
 YY_RULE_SETUP
-#line 74 "analisador_lexico.l"
+#line 116 "analisador_lexico.l"
 {col = 1;}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 75 "analisador_lexico.l"
+#line 117 "analisador_lexico.l"
 {col += 4;}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 76 "analisador_lexico.l"
+#line 118 "analisador_lexico.l"
 {col++;}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 77 "analisador_lexico.l"
+#line 119 "analisador_lexico.l"
 {col++;}
 	YY_BREAK
 case YY_STATE_EOF(COMMENT):
-#line 78 "analisador_lexico.l"
+#line 120 "analisador_lexico.l"
 {return ERROR;}
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 81 "analisador_lexico.l"
+#line 122 "analisador_lexico.l"
 {col += 4;}
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 82 "analisador_lexico.l"
+#line 123 "analisador_lexico.l"
 {col++;}
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 83 "analisador_lexico.l"
+#line 124 "analisador_lexico.l"
 {return OPR;}
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 84 "analisador_lexico.l"
+#line 125 "analisador_lexico.l"
 {return IF;}
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 85 "analisador_lexico.l"
+#line 126 "analisador_lexico.l"
 {return ELSE;}
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 86 "analisador_lexico.l"
+#line 127 "analisador_lexico.l"
 {return WHILE;}
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 87 "analisador_lexico.l"
+#line 128 "analisador_lexico.l"
 {return VAR;}
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 88 "analisador_lexico.l"
+#line 129 "analisador_lexico.l"
 {return CONST;}
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 89 "analisador_lexico.l"
+#line 130 "analisador_lexico.l"
 {return RETURN;}
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 90 "analisador_lexico.l"
+#line 131 "analisador_lexico.l"
 {return FN;}
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 91 "analisador_lexico.l"
+#line 132 "analisador_lexico.l"
 {return ATRIB;}
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 92 "analisador_lexico.l"
+#line 133 "analisador_lexico.l"
 {return BOOL;}
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 93 "analisador_lexico.l"
+#line 134 "analisador_lexico.l"
 {return INT;}
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 94 "analisador_lexico.l"
+#line 135 "analisador_lexico.l"
 {return FLOAT;}
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 95 "analisador_lexico.l"
+#line 136 "analisador_lexico.l"
 {return TRU;}
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 96 "analisador_lexico.l"
+#line 137 "analisador_lexico.l"
 {return FALS;}
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 97 "analisador_lexico.l"
+#line 138 "analisador_lexico.l"
 {return OPAR;}
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 98 "analisador_lexico.l"
+#line 139 "analisador_lexico.l"
 {return CPAR;}
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 99 "analisador_lexico.l"
+#line 140 "analisador_lexico.l"
 {return OBRAC;}
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 100 "analisador_lexico.l"
+#line 141 "analisador_lexico.l"
 {return CBRAC;}
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 101 "analisador_lexico.l"
+#line 142 "analisador_lexico.l"
 {return SCOL;}
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 102 "analisador_lexico.l"
+#line 143 "analisador_lexico.l"
 {return COL;}
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 103 "analisador_lexico.l"
+#line 144 "analisador_lexico.l"
 {return ID;}
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 104 "analisador_lexico.l"
+#line 145 "analisador_lexico.l"
 {return LITERALINT;}
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 105 "analisador_lexico.l"
+#line 146 "analisador_lexico.l"
 {return LITERALFLOAT;}
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 108 "analisador_lexico.l"
+#line 147 "analisador_lexico.l"
+{return INVALID_INPUT;}
+	YY_BREAK
+case 39:
+YY_RULE_SETUP
+#line 150 "analisador_lexico.l"
 ECHO;
 	YY_BREAK
-#line 1064 "lex.yy.c"
+#line 1112 "lex.yy.c"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -2075,102 +2123,52 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 108 "analisador_lexico.l"
+#line 150 "analisador_lexico.l"
 
 
 /*Function yywrap is called by lex when input is exhausted.
 Return 1 if you are done or 0 if more processing is required.*/
-int yywrap(void) { return 1; }
+int yywrap(void) 
+{
+    return 1; 
+}
 
-int main(int argc, char *argv[]) {
-    TOKEN token_atual;
+int main(int argc, char *argv[])
+{
+    TOKEN token_atual; // representa a classificação do token atualmente em análise/leitura
 
-    yyin = fopen(argv[1], "r");
-    // out = fopen(argv[2], "w");
+    // abrir arquivos
+    yyin = fopen(argv[1], "r"); // abrir para leitura arquivo onde código para análise léxica está para leitura
+    yyout = fopen(argv[2], "w"); // criar arquivo para escrita onde os resultados da análise léxica
 
-    token_atual = (TOKEN) yylex();
+    while(1)
+    {
+        // ler próximo token para análise
+        token_atual = (TOKEN) yylex(); 
 
-    do{
-        if(token_atual == ERROR){
-            printf("(ERROR,\"/*\",%d,%d)\n", line, colComment);
+        // testar validade do token:
+        if (token_atual == eof) // inválido, se for o fim do arquivo
+        {
+            fprintf(yyout, "(EOF, %d, %d)\n", yylineno, col); // imprimir tupla (tipo, token, info)
             break;
-        }else if(token_atual == OPR){
-            printf("(OPR,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == IF){
-            printf("(IF,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == ELSE){
-            printf("(ELSE,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == WHILE){
-            printf("(WHILE,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == VAR){
-            printf("(VAR,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == CONST){
-            printf("(CONST,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == RETURN){
-            printf("(RETURN,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == FN){
-            printf("(FN,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == ATRIB){
-            printf("(ATRIB,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == BOOL){
-            printf("(BOOL,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == INT){
-            printf("(INT,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == FLOAT){
-            printf("(FLOAT,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == TRU){
-            printf("(TRU,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == FALS){
-            printf("(FALS,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == OPAR){
-            printf("(OPAR,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == CPAR){
-            printf("(CPAR,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == OBRAC){
-            printf("(OBRAC,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == CBRAC){
-            printf("(CBRAC,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == SCOL){
-            printf("(SCOL,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == COL){
-            printf("(COL,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == ID){
-            printf("(ID,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == LITERALINT){
-            printf("(LITERALINT,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == LITERALFLOAT){
-            printf("(LITERALFLOAT,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
         }
-    }while((token_atual = (TOKEN) yylex()) != EOF);
-
-    printf("(EOF,%d,%d)\n", yylineno, col);
-
-
+        if (token_atual == ERROR) // inválido, se houver algum erro
+        {
+            fprintf(yyout, "(ERROR,\"/*\",%d,%d)\n", line, colComment); // imprimir mensagem de erro
+            break;
+        }
+        char* tokenName; // representa o nome do tipo de token reconhecido
+        if ((tokenName = GetTokenName(token_atual)) != NULL) //válido, se não for fim do arquivo, não houver erro e se for um comando reconhecido pelas regras
+        {
+            fprintf(yyout, "(%s,\"%s\",%d,%d)\n", tokenName, yytext, yylineno, col); // imprimir tupla (tipo, token, info)
+            col += strlen(yytext); // atualizar contagem de colunas
+        }
+        else fprintf(yyout, "\n");
+    } 
+    
+    // fechar arquivos de leitura e escrita
     fclose(yyin);
-    // fclose(out);
+    fclose(yyout);
 
     return 0;
 }

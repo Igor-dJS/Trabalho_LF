@@ -26,7 +26,7 @@ char* GetEnumName(enum_tuple* table, int key)
 // representa os tokens da linguagem LF
 typedef enum _TOKEN 
 {
-eof = -1, OPR = 0, RESERVADAS = 1, ID = 2, LITERALINT = 3, LITERALFLOAT = 4, ERROR = 5, IF = 6, 
+eof = -1, OPR = 0, INVALID_INPUT = 1, ID = 2, LITERALINT = 3, LITERALFLOAT = 4, ERROR = 5, IF = 6, 
 ELSE = 7, WHILE = 8, VAR = 9, CONST = 10, RETURN = 11, FN = 12, ATRIB = 13,
 BOOL = 14, INT = 15, FLOAT = 16, TRU =17, FALS = 18, OPAR = 19, CPAR = 20, OBRAC = 21, 
 CBRAC = 22, SCOL = 23, COL = 24
@@ -37,7 +37,7 @@ enum_tuple dicionario_tokens[] =
 {
     { eof, "eof" },
     { OPR, "OPR" },
-    { RESERVADAS,  "RESERVADAS"  },
+    { INVALID_INPUT,  "INVALID_INPUT"  },
     { ID,  "ID"  },
     { LITERALINT,"LITERALINT"},
     {LITERALFLOAT, "LITERALFLOAT"}, 
@@ -144,6 +144,7 @@ SPACE [ ]
 <INITIAL>({LETRA}|_)({LETRA}|{NUM}|_)* {return ID;}
 <INITIAL>0|[1-9]{NUM}* {return LITERALINT;}
 <INITIAL>(0|[1-9][0-9]*)\.[0-9]+ {return LITERALFLOAT;}
+<INITIAL>(.) {return INVALID_INPUT;}
 
 
 %%
@@ -160,8 +161,8 @@ int main(int argc, char *argv[])
     TOKEN token_atual; // representa a classificação do token atualmente em análise/leitura
 
     // abrir arquivos
-    yyin = fopen("input.text", "r"); // abrir para leitura arquivo onde código para análise léxica está para leitura
-    yyout = fopen("output.txt", "w"); // criar arquivo para escrita onde os resultados da análise léxica
+    yyin = fopen(argv[1], "r"); // abrir para leitura arquivo onde código para análise léxica está para leitura
+    yyout = fopen(argv[2], "w"); // criar arquivo para escrita onde os resultados da análise léxica
 
     while(1)
     {
@@ -169,7 +170,7 @@ int main(int argc, char *argv[])
         token_atual = (TOKEN) yylex(); 
 
         // testar validade do token:
-        if (token_atual == EOF) // inválido, se for o fim do arquivo
+        if (token_atual == eof) // inválido, se for o fim do arquivo
         {
             fprintf(yyout, "(EOF, %d, %d)\n", yylineno, col); // imprimir tupla (tipo, token, info)
             break;
