@@ -4,13 +4,70 @@
 #include <string.h>
 #include <ctype.h>
 
-//Definindo os tokens da linguagem LF
-typedef enum _TOKEN {
+// define uma tupla que é composta de um enum, sua chave, e a string contendo seu nome/tipo, o valor associado à chave
+typedef struct _enum_tuple 
+{
+    int    enum_key;
+    char  *enum_value;
+} enum_tuple;
+
+// retorna a string associada a uma chave dada por key no dicionário dado em table
+char* GetEnumName(enum_tuple* table, int key)
+{
+   while (table->enum_value != NULL)
+   {
+      if (table->enum_key == key)
+        return table->enum_value;
+      table++;
+   }
+   return NULL;
+}
+
+// representa os tokens da linguagem LF
+typedef enum _TOKEN 
+{
 eof = -1, OPR = 0, RESERVADAS = 1, ID = 2, LITERALINT = 3, LITERALFLOAT = 4, ERROR = 5, IF = 6, 
 ELSE = 7, WHILE = 8, VAR = 9, CONST = 10, RETURN = 11, FN = 12, ATRIB = 13,
 BOOL = 14, INT = 15, FLOAT = 16, TRU =17, FALS = 18, OPAR = 19, CPAR = 20, OBRAC = 21, 
 CBRAC = 22, SCOL = 23, COL = 24
 } TOKEN;
+
+// representa um dicionário de tokens
+enum_tuple dicionario_tokens[] = 
+{
+    { eof, "eof" },
+    { OPR, "OPR" },
+    { RESERVADAS,  "RESERVADAS"  },
+    { ID,  "ID"  },
+    { LITERALINT,"LITERALINT"},
+    {LITERALFLOAT, "LITERALFLOAT"}, 
+    {ERROR, "ERROR"}, 
+    {IF, "IF"}, 
+    {ELSE, "ELSE"}, 
+    {WHILE, "WHILE"},
+    {VAR, "VAR"},
+    {CONST, "CONST"},
+    {RETURN, "RETURN"},
+    {FN, "FN"},
+    {ATRIB, "ATRIB"},
+    {BOOL, "BOOL"},
+    {INT, "INT"}, 
+    {FLOAT, "FLOAT"},
+    {TRU, "TRU"},
+    {FALS, "FALS"},
+    {OPAR, "OPAR"},
+    {CPAR, "CPAR"},
+    {OBRAC, "OBRAC"},
+    {CBRAC, "CBRAC"},
+    {SCOL, "SCOL"},
+    {COL, "COL"},
+};
+
+// retorna a string contendo o nome ou tipo associada ao token dado por token_key
+char* GetTokenName(TOKEN token_key)
+{
+    return GetEnumName(dicionario_tokens, token_key);
+}
 
 
 /*
@@ -62,7 +119,6 @@ SPACE [ ]
 <COMMENT>(.) {col++;}
 <COMMENT><<eof>> {return ERROR;}
 
-
 <INITIAL>{TAB} {col += 4;}
 <INITIAL>{SPACE} {col++;}
 <INITIAL>"+"|"*"|"==" {return OPR;}
@@ -94,97 +150,47 @@ SPACE [ ]
 
 /*Function yywrap is called by lex when input is exhausted.
 Return 1 if you are done or 0 if more processing is required.*/
-int yywrap(void) { return 1; }
+int yywrap(void) 
+{
+    return 1; 
+}
 
-int main(int argc, char *argv[]) {
-    TOKEN token_atual;
+int main(int argc, char *argv[])
+{
+    TOKEN token_atual; // representa a classificação do token atualmente em análise/leitura
 
-    yyin = fopen(argv[1], "r");
-    // out = fopen(argv[2], "w");
+    // abrir arquivos
+    yyin = fopen("input.text", "r"); // abrir para leitura arquivo onde código para análise léxica está para leitura
+    yyout = fopen("output.txt", "w"); // criar arquivo para escrita onde os resultados da análise léxica
 
-    token_atual = (TOKEN) yylex();
+    while(1)
+    {
+        // ler próximo token para análise
+        token_atual = (TOKEN) yylex(); 
 
-    do{
-        if(token_atual == ERROR){
-            printf("(ERROR,\"/*\",%d,%d)\n", line, colComment);
+        // testar validade do token:
+        if (token_atual == EOF) // inválido, se for o fim do arquivo
+        {
+            fprintf(yyout, "(EOF, %d, %d)\n", yylineno, col); // imprimir tupla (tipo, token, info)
             break;
-        }else if(token_atual == OPR){
-            printf("(OPR,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == IF){
-            printf("(IF,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == ELSE){
-            printf("(ELSE,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == WHILE){
-            printf("(WHILE,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == VAR){
-            printf("(VAR,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == CONST){
-            printf("(CONST,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == RETURN){
-            printf("(RETURN,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == FN){
-            printf("(FN,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == ATRIB){
-            printf("(ATRIB,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == BOOL){
-            printf("(BOOL,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == INT){
-            printf("(INT,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == FLOAT){
-            printf("(FLOAT,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == TRU){
-            printf("(TRU,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == FALS){
-            printf("(FALS,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == OPAR){
-            printf("(OPAR,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == CPAR){
-            printf("(CPAR,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == OBRAC){
-            printf("(OBRAC,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == CBRAC){
-            printf("(CBRAC,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == SCOL){
-            printf("(SCOL,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == COL){
-            printf("(COL,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == ID){
-            printf("(ID,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == LITERALINT){
-            printf("(LITERALINT,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
-        }else if(token_atual == LITERALFLOAT){
-            printf("(LITERALFLOAT,\"%s\",%d,%d)\n", yytext, yylineno, col);
-            col += strlen(yytext);
         }
-    }while((token_atual = (TOKEN) yylex()) != EOF);
-
-    printf("(EOF,%d,%d)\n", yylineno, col);
-
-
-    fclose(yyin);
+        if (token_atual == ERROR) // inválido, se houver algum erro
+        {
+            fprintf(yyout, "(ERROR,\"/*\",%d,%d)\n", line, colComment); // imprimir mensagem de erro
+            break;
+        }
+        char* tokenName; // representa o nome do tipo de token reconhecido
+        if ((tokenName = GetTokenName(token_atual)) != NULL) //válido, se não for fim do arquivo, não houver erro e se for um comando reconhecido pelas regras
+        {
+            fprintf(yyout, "(%s,\"%s\",%d,%d)\n", tokenName, yytext, yylineno, col); // imprimir tupla (tipo, token, info)
+            col += strlen(yytext); // atualizar contagem de colunas
+        }
+        else fprintf(yyout, "\n");
+    } 
     
+    // fechar arquivos de leitura e escrita
+    fclose(yyin);
+    fclose(yyout);
 
     return 0;
 }
