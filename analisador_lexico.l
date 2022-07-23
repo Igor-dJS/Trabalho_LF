@@ -1,29 +1,33 @@
 %{
+
+/*
+Instituto de Computação - Universidade Federal do Rio de Janeiro
+Authors:
+- Igor Santos
+- João Pedro Silveira
+- Vitória Serafim
+
+Code: Lexical analyser for LF language as assignment for "Linguagens Formais" course at IC - UFRJ
+Last update: July 2022
+
+Usage instructions: ./analisadorLexJIV <input .txt file> <output .txt file> 
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 
-// define uma tupla que é composta de um enum, sua chave, e a string contendo seu nome/tipo, o valor associado à chave
+// Modelagem de dados
+
+    // define uma tupla que é composta de um enum, sua chave, e a string contendo seu nome/tipo, o valor associado à chave
 typedef struct _enum_tuple 
 {
     int    enum_key;
     char  *enum_value;
 } enum_tuple;
 
-// retorna a string associada a uma chave dada por key no dicionário dado em table
-char* GetEnumName(enum_tuple* table, int key)
-{
-   while (table->enum_value != NULL)
-   {
-      if (table->enum_key == key)
-        return table->enum_value;
-      table++;
-   }
-   return NULL;
-}
-
-// representa os tokens da linguagem LF
+    // representa os tokens da linguagem LF
 typedef enum _TOKEN 
 {
 eof = -1, OPR = 0, INVALID_INPUT = 1, ID = 2, LITERALINT = 3, LITERALFLOAT = 4, ERROR = 5, IF = 6, 
@@ -32,14 +36,14 @@ BOOL = 14, INT = 15, FLOAT = 16, TRU =17, FALS = 18, OPAR = 19, CPAR = 20, OBRAC
 CBRAC = 22, SCOL = 23, COL = 24
 } TOKEN;
 
-// representa um dicionário de tokens
+    // representa um dicionário de tokens e seus nomes da linguagem LF
 enum_tuple dicionario_tokens[] = 
 {
-    { eof, "eof" },
-    { OPR, "OPR" },
-    { INVALID_INPUT,  "INVALID_INPUT"  },
-    { ID,  "ID"  },
-    { LITERALINT,"LITERALINT"},
+    {eof, "eof"},
+    {OPR, "OPR"},
+    {INVALID_INPUT,  "INVALID_INPUT"},
+    {ID,  "ID"},
+    {LITERALINT,"LITERALINT"},
     {LITERALFLOAT, "LITERALFLOAT"}, 
     {ERROR, "ERROR"}, 
     {IF, "IF"}, 
@@ -63,7 +67,22 @@ enum_tuple dicionario_tokens[] =
     {COL, "COL"},
 };
 
-// retorna a string contendo o nome ou tipo associada ao token dado por token_key
+
+// Funções auxiliares
+
+    // retorna a string associada a uma chave dada por key no dicionário dado em table
+char* GetEnumName(enum_tuple* table, int key)
+{
+   while (table->enum_value != NULL)
+   {
+      if (table->enum_key == key)
+        return table->enum_value;
+      table++;
+   }
+   return NULL;
+}
+
+    // retorna a string contendo o nome ou tipo associada ao token dado por token_key
 char* GetTokenName(TOKEN token_key)
 {
     return GetEnumName(dicionario_tokens, token_key);
